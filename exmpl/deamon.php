@@ -7,7 +7,6 @@
  * and open the template in the editor.
  */
 
-//setlocale(LC_ALL, 'ru_RU.CP1251');
 set_time_limit(0);
 date_default_timezone_set('Europe/Moscow');
 error_reporting(E_ALL);
@@ -21,10 +20,6 @@ if (!setlocale(LC_ALL, 'en_US.UTF-8'))
 {
     exit(1);
 }
-//if (!setlocale(LC_CTYPE, 'ru_RU.CP1251'))
-//{
-//    exit(1);
-//}
 $deamon = new DeamonExmpl;
 $deamon->setLogLevel(\Process\Deamon::LOG_DEBUG);
 $deamon->setMaxChildCount(2);

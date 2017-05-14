@@ -107,11 +107,11 @@ class Deamon
         switch($local_argv[1])
         {
             case 'install':
-                $os = Process\Os\OsAbstract::factory($this);
+                $os = Os\OsAbstract::factory($this);
                 $os->install(null);
                 break;
             case 'uninstall':
-                $os = Process\Os\OsAbstract::factory($this);
+                $os = Os\OsAbstract::factory($this);
                 $os->uninstall();
                 break;
             case 'start':

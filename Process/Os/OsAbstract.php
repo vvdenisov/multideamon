@@ -64,16 +64,16 @@ abstract class OsAbstract
         unlink($autoload_file);
     }
     
-    public static function factory(Process_Deamon $deamon)
+    public static function factory(\Process\Deamon $deamon)
     {
         $os = null;
         switch (strtolower(PHP_OS))
         {
             case 'freebsd':
-                $os = new Process_Os_Freebsd($deamon);
+                $os = new Freebsd($deamon);
                 break;
             case 'linux':
-                $os = new Process_Os_Linux($deamon);
+                $os = new Linux($deamon);
                 break;
         }
         return $os;

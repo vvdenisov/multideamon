@@ -69,15 +69,15 @@ class Deamon
         $this->log_level = static::LOG_WARNING;
         if(!extension_loaded('posix'))
         {
-            throw new Exception('Для работы необходимо расширение posix');
+            throw new Exception('For work need extantion posix');
         }
         if(!extension_loaded('pcntl'))
         {
-            throw new Exception('Для работы необходимо расширение pcntl');
+            throw new Exception('For work need extantion pcntl');
         }
         if(!extension_loaded('sockets'))
         {
-            throw new Exception('Для работы необходимо расширение sockets');
+            throw new Exception('For work need extantion sockets');
         }
     }
 
@@ -243,7 +243,7 @@ class Deamon
     /**
      * start deamon
      * 
-     * @return int код выхода
+     * @return int code exit
      */
     protected function _start()
     {
@@ -266,11 +266,11 @@ class Deamon
         switch ($signo)
         {
             case SIGHUP:
-                // перечитать конфиги, переоткрыть файлы логов и т.д.
+                // reload log
                 $this->_reload();
                 break;
             case SIGTERM:
-                // При получении сигнала завершения работы устанавливаем флаг
+                // During sig stop, set flag
                 $this->stop_server = true;
                 break;
         }
@@ -335,7 +335,7 @@ class Deamon
         );
         if( ! in_array($level, $levels) )
         {
-            throw new Exception("Некоррентный уровнель логирования");
+            throw new Exception("Uncorrect log level");
         }
          
         $this->log_level = $level;

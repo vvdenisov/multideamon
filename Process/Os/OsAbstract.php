@@ -11,7 +11,7 @@ abstract class OsAbstract
 {
     protected $deamon;
     
-    public function __construct(Process_Deamon $deamon)
+    public function __construct(\Process\Deamon $deamon)
     {
         $this->deamon = $deamon;
     }

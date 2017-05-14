@@ -1,0 +1,17 @@
+{
+    "name": "multideamon/multideamon",
+    "type": "library",
+    "description": "Multideamon lib",
+    "keywords": ["multideamon","deamon","multi"],
+    "authors": [
+        {
+            "name": "Walkerror",
+            "email": "walkerror@ya.ru"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Process\\": "Process"
+        }
+    }
+}

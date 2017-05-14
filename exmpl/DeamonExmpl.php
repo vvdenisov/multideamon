@@ -3,15 +3,14 @@
 use \Process\MultiThreadDeamon;
 
 /**
- * Description of Daemon
  *
- * @author vadim
+ * @author walkerror
  */
 class DeamonExmpl extends MultiThreadDeamon 
 {
 
     protected $_template_timeout_queue = array();
-    protected $port = 6795; // порт для SOCKET-а
+    protected $port = 6795; // port for SOCKET
 
     public function getName() 
     {

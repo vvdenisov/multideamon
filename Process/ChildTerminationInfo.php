@@ -62,11 +62,11 @@ class ChildTerminationInfo
         }
         if($object->_is_terminated)
         {
-            $object->_terminate_signal = Process\Signal::getBySignalCode(pcntl_wtermsig($status));
+            $object->_terminate_signal = Signal::getBySignalCode(pcntl_wtermsig($status));
         }
         if($object->_is_stopped)
         {
-            $object->_stop_signal = Process\Signal::getBySignalCode(pcntl_wstopsig($status));
+            $object->_stop_signal = Signal::getBySignalCode(pcntl_wstopsig($status));
         }
         return $object;
     }

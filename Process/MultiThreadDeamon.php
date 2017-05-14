@@ -8,7 +8,6 @@
 
 namespace Process;
 
-use Process\Deamon;
 
 class MultiThreadDeamon extends Deamon
 {
@@ -324,7 +323,7 @@ class MultiThreadDeamon extends Deamon
                 {
                     if ($pid && isset($this->current_children[$pid]))
                     {
-                        $child_info = Process\ChildTerminationInfo::createByStatus($status);
+                        $child_info = ChildTerminationInfo::createByStatus($status);
                         $this->logChildExitInfo($child_info, $pid);
                         $this->debug("waited child {$pid}");
                         // если дочерний процесс не приостановлен
@@ -346,7 +345,7 @@ class MultiThreadDeamon extends Deamon
      * @param type $status
      * @param type $pid
      */
-    public function logChildExitInfo(Process\ChildTerminationInfo $child_info, $pid)
+    public function logChildExitInfo(ChildTerminationInfo $child_info, $pid)
     {
         // если дочерние меняют состояние, но главный процесс не остановлен
         if(!$this->stop_server)

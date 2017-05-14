@@ -8,7 +8,6 @@
 
 namespace Process\Os;
 
-use Process\Os\OsAbstract;
 
 class Freebsd extends OsAbstract
 {

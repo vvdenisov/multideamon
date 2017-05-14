@@ -14,7 +14,6 @@
 
 namespace Process\Os;
 
-use Process\Os\OsAbstract;
 
 class Linux extends OsAbstract
 {

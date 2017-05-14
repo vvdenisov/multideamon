@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Класс для демонизации
+ * Deamonize
  *
  * @author walkerror
  */
@@ -61,7 +61,7 @@ class Deamon
     protected $autorun_dir = '/usr/local/etc/rc.d';
     protected $name;
     
-    // Когда установится в TRUE, демон завершит работу
+    // If TRUE, deamon - stop
     protected $stop_server = false;
 
     public function __construct()
@@ -82,7 +82,7 @@ class Deamon
     }
 
     /**
-     * Запускает/останавливает/перегружает демон на основании параметров командной строки
+     * start/stop/reload deamon
      * @global type $argc
      * @global type $argv
      * @param type $local_argc
@@ -157,7 +157,7 @@ class Deamon
     public function doWork()
     {
         $this->info('do nothing');
-        usleep(1000 * 1000 * 10); // 10 секунд
+        usleep(1000 * 1000 * 10); 
     }
     
     public function setName($name)
@@ -212,7 +212,7 @@ class Deamon
     }
 
     /**
-     * перезапустить приложение
+     * start app
      */
     public function start()
     {
@@ -222,7 +222,7 @@ class Deamon
     }
     
     /**
-     * Остановить приложение
+     * stop app
      */
     public function stop()
     {
@@ -235,16 +235,13 @@ class Deamon
         unlink($this->getLockFilePath());
     }
     
-    /**
-     * Перечитать конфиги и переокрыть логи
-     */
     public function reload()
     {
         posix_kill($this->getPidFromLockFile(), SIGHUP);
     }
     
     /**
-     * Запустить демон
+     * start deamon
      * 
      * @return int код выхода
      */
@@ -262,7 +259,7 @@ class Deamon
     }
 
     /**
-     * Обработчик сигналов родительского процесса
+     * signal handler
      */
     public function parentSignalHandler( $signo )
     {
@@ -286,7 +283,7 @@ class Deamon
     }
  
     /**
-     * Переоткрывает логи
+     * reopen log
      */
     protected function _reload()
     {
@@ -297,7 +294,7 @@ class Deamon
     }
 
     /**
-     * Открывает файл лога на добавление
+     * open log
      */
     protected function _open_log()
     {
@@ -308,7 +305,7 @@ class Deamon
     }
     
     /**
-     * Закрывает файл лога
+     * close log
      */
     protected function _close_log()
     {
@@ -320,7 +317,6 @@ class Deamon
     }
     
     /**
-     * Устанавливает уровень логирования
      * 
      * @param int $level
      * @throws Exception
@@ -346,7 +342,6 @@ class Deamon
     }
     
     /**
-     * Указывает путь к файлу лога
      * 
      * @param string $path
      */
@@ -365,7 +360,7 @@ class Deamon
      */
     public function phpErrorHandler($errno , $errstr , $errfile = null, $errline = null, $errcontext = null)
     {
-        // если глушим символом @
+        // for simbol @ in error
         if(error_reporting() === 0)
         {
             return;
@@ -421,15 +416,13 @@ class Deamon
             );
             if( ! isset($levels[$level]) )
             {
-                throw new Exception("Некоррентный уровнель логирования");
+                throw new Exception("Uncorrect log level");
             }
             if($this->log_level >= $level)
             {
                 $log_msg = date('Y-m-d H:i:s') . ' '.  posix_getpid().' '.$levels[$level].': '.$msg."\n";
-                // залочим файл
                 flock($this->log_desctiptor, LOCK_EX);
                 fwrite($this->log_desctiptor, $log_msg);
-                // разлочим файл
                 flock($this->log_desctiptor, LOCK_UN );
             }
         }
@@ -476,14 +469,14 @@ class Deamon
     }
 
     /**
-     * Превращаем текущий процесс в демон
+     * Process to deamon
      */
     public function demonize()
     {
         $this->_open_log();
         ini_set('display_errors', 0);
         $this->info("Start demonize");
-        // Этап 1. fork, чтобы отпустить терминал
+        // 1. fork, for unlunch terminal
         $pid = pcntl_fork();
         if($pid<0)
         {
@@ -492,16 +485,16 @@ class Deamon
         }
         elseif($pid>0)
         {
-            // завершаем родителький процесс
+            // stop parent process
             exit(self::EXIT_SUCCESS);
         }
-        // Этап 2. Стартуем новую сессию
+        // 2. start new session
         if(posix_setsid() < 0)
         {
             $this->crit("setsid failed");
             exit(self::EXIT_DEMONIZE_FAILED);
         }
-        // Этап 3. fork. Чтобы перестать быть session leader'ом
+        // 3. fork. rewrite session leader-om
         $pid = pcntl_fork();
         if($pid<0)
         {
@@ -510,17 +503,17 @@ class Deamon
         }
         elseif($pid>0)
         {
-            // завершаем родителький процесс
+            // stop parent process
             exit(self::EXIT_SUCCESS);
         }
-        // Этап 4. Меняем текущую рабочую директорию на корень
+        // 4. Reset current work dir to /
         if( ! chdir('/'))
         {
             $this->warning("chdir failed");
         }
-        // Этам 5. Разрешаем ставить любые права на создаваемые файлы
+        // 5. Any permission for created files
         umask(0);
-        // устанавливаем обработчики сигналов
+        // set signal handler
         if( ! pcntl_signal(SIGTERM, array($this, "parentSignalHandler")))
         {
             $this->warning("Failed install signal handler for sinal SIGTERM");

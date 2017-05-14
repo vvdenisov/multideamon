@@ -30,8 +30,6 @@ class Signal
     }
 
     /**
-     * ¬озвращает название сигнала по коду
-     * ≈сли название сигнала не определено вернет null
      * @param integer $signal_code 
      * @return string
      */

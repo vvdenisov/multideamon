@@ -1,7 +1,6 @@
 <?php
 
 /**
- * Класс для демонизации (многопоточный через fork)
  *
  * @author walkerror
  */
@@ -14,17 +13,17 @@ class MultiThreadDeamon extends Deamon
     /**
      * @var type 
      */
-    protected $is_respawn = true; // пересоздавать отвалившиеся дочерние процессы
-    protected $spawn_timeout = 100000; // мисросекунды
+    protected $is_respawn = true; // restart deadedchild processes
+    protected $spawn_timeout = 100000; // microsecond
     
     /**
-     * PID'ы запущенных в текущий момент дочерних процессов
+     * PID's running child processes
      * @var array 
      */
     protected $current_children = array();
     
     /**
-     * текущий процесс дочерний или главный процесс
+     * childre o parentprocess
      * @var bool 
      */
     protected $is_child = false;
@@ -33,7 +32,7 @@ class MultiThreadDeamon extends Deamon
     protected $socket;
     
     /**
-     * Максимальное количество одновременно запущенных дочерних процессов
+     * Max childe processes
      * @var type 
      */
     protected $max_child_count = 1;
@@ -43,7 +42,7 @@ class MultiThreadDeamon extends Deamon
     protected $backlog = 10;
     
     /**
-     * Устанавливает максимальное количество дочерних процессов
+     * 
      * @param int $count
      */
     public function setMaxChildCount($count)
@@ -52,7 +51,6 @@ class MultiThreadDeamon extends Deamon
     }
     
     /**
-     * Возвращает максимальное количество дочерних процессов
      * 
      * @return int
      */
@@ -119,7 +117,7 @@ class MultiThreadDeamon extends Deamon
         $this->_initWebSocket();
         while( ! $this->stop_server)
         {
-            // Если уже запущено максимальное количество дочерних процессов, ждем их завершения
+            // If maximum childe work? whait for stop
             while ( ! $this->stop_server && (count($this->current_children) == $this->max_child_count || !$remain_child) )
             {
                 if((@$client = socket_accept($this->socket)) !== false)  
@@ -273,25 +271,23 @@ class MultiThreadDeamon extends Deamon
     protected function launchChild()
     {
         /*
-         * Создаем дочерний процесс
-         * весь код после pcntl_fork() будет выполняться
-         * двумя процессами: родительским и дочерним
+         * Create childe process
+         * code after pcntl_fork() run both process: parent and childe
          * */
         $pid = pcntl_fork();
         if ( $pid )
         {
-            /*Этот код выполнится родительским процессом*/
+            /* This code run in parent process*/
             $this->current_children[$pid] = true;
         }
         elseif ( $pid == -1 )
         {
-            /*Не удалось создать дочерний процесс*/
             error_log( 'Could not launch new job, exiting' );
             return false;
         }
         else
         {
-            /*А этот код выполнится дочерним процессом*/
+            /*This code run in childe process*/
             pcntl_signal( SIGCHLD, SIG_DFL );
             socket_close( $this->socket );
             $this->current_children = array();
@@ -318,7 +314,7 @@ class MultiThreadDeamon extends Deamon
             case SIGCHLD:
                 $status = null;
                 $pid = null;
-                // Пока есть завершенные дочерние процессы
+                // Before children is run
                 while ( $pid === null || $pid > 0 )
                 {
                     if ($pid && isset($this->current_children[$pid]))
@@ -326,11 +322,9 @@ class MultiThreadDeamon extends Deamon
                         $child_info = ChildTerminationInfo::createByStatus($status);
                         $this->logChildExitInfo($child_info, $pid);
                         $this->debug("waited child {$pid}");
-                        // если дочерний процесс не приостановлен
                         if( ! $child_info->isStopped())
                         {
                             $this->debug("child {$pid} has exited or killed");
-                            // Удаляем дочерние процессы из списка
                             unset($this->current_children[$pid]);
                         }
                     }
@@ -341,13 +335,11 @@ class MultiThreadDeamon extends Deamon
     }
 
     /**
-     * Возвращает информацию о причине завершения дочернего просесса
      * @param type $status
      * @param type $pid
      */
     public function logChildExitInfo(ChildTerminationInfo $child_info, $pid)
     {
-        // если дочерние меняют состояние, но главный процесс не остановлен
         if(!$this->stop_server)
         {
             $msg = "Child with pid: {$pid} unexpectedly change state - ";
@@ -400,14 +392,14 @@ class MultiThreadDeamon extends Deamon
         }
         else
         {
-            // отсылаем всем дочерним процессам сигнал завешения процесса
+            // say children signal stop 
             foreach ($this->current_children as $pid=>$value)
             {
                 $this->debug('Parent send SIGTERM to child '.$pid);
                 posix_kill($pid, SIGTERM); 
             }
             $this->debug('wait children quit');
-            // пока не завершены все дочерние процессы
+            // whait for all chilgren
             while($this->current_children)
             { 
                 pcntl_signal_dispatch();
